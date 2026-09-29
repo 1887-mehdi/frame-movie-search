@@ -35,7 +35,7 @@ export function MovieDetailsDialog({
     const previouslyFocused = document.activeElement;
     closeButtonRef.current?.focus();
 
-    getMovieDetails(movie.id, controller.signal)
+    getMovieDetails(movie, controller.signal)
       .then(setDetails)
       .catch((requestError: unknown) => {
         if (!controller.signal.aborted) {
@@ -80,7 +80,7 @@ export function MovieDetailsDialog({
       document.body.classList.remove("dialog-open");
       if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
     };
-  }, [movie.id, onClose]);
+  }, [movie.id, movie.provider, onClose]);
 
   const backdrop = getImageUrl(
     details?.backdropPath ?? movie.backdropPath,
@@ -91,13 +91,15 @@ export function MovieDetailsDialog({
     (video) =>
       video.site === "YouTube" && video.type === "Trailer" && video.key,
   );
-  const director = details?.credits.crew.find(
-    (person) => person.job === "Director",
-  );
-  const cast = details?.credits.cast
-    .slice(0, 5)
-    .map((person) => person.name)
-    .join(", ");
+  const director =
+    details?.director ||
+    details?.credits.crew.find((person) => person.job === "Director")?.name;
+  const cast =
+    details?.castNames?.join(", ") ||
+    details?.credits.cast
+      .slice(0, 5)
+      .map((person) => person.name)
+      .join(", ");
 
   return (
     <div
@@ -187,7 +189,7 @@ export function MovieDetailsDialog({
             <div className="movie-dialog__facts">
               <div>
                 <span>Director</span>
-                <strong>{director?.name ?? "Not listed"}</strong>
+                <strong>{director || "Not listed"}</strong>
               </div>
               <div>
                 <span>Cast</span>
@@ -200,7 +202,9 @@ export function MovieDetailsDialog({
                 </strong>
               </div>
               <div>
-                <span>Audience score</span>
+                <span>
+                  {movie.provider === "omdb" ? "IMDb score" : "TMDB score"}
+                </span>
                 <strong>{details.voteCount.toLocaleString()} votes</strong>
               </div>
             </div>

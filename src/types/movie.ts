@@ -1,5 +1,7 @@
 export type MovieSummary = {
   id: number;
+  provider: "tmdb" | "omdb";
+  imdbId: string | null;
   title: string;
   originalTitle: string;
   posterPath: string | null;
@@ -9,6 +11,12 @@ export type MovieSummary = {
   voteCount: number;
   overview: string;
   genreIds: number[];
+  genres?: Array<{ id: number; name: string }>;
+  runtime?: number | null;
+  originalLanguage?: string;
+  director?: string;
+  castNames?: string[];
+  imdbRating?: string | null;
 };
 
 export type MovieDetails = MovieSummary & {

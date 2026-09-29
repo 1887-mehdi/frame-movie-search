@@ -247,7 +247,7 @@ export function App() {
               <div className="movie-grid">
                 {movies.map((movie) => (
                   <MovieCard
-                    key={movie.id}
+                    key={`${movie.provider}:${movie.id}`}
                     movie={movie}
                     onSelect={setSelectedMovie}
                   />
@@ -280,13 +280,17 @@ export function App() {
         <footer className="site-footer">
           <span>MADE FOR THE LOVE OF A GOOD STORY</span>
           <span>
-            FILM DATA POWERED BY{" "}
+            FILM DATA BY{" "}
             <a
               href="https://www.themoviedb.org/"
               target="_blank"
               rel="noreferrer"
             >
               TMDB
+            </a>{" "}
+            &amp;{" "}
+            <a href="https://www.omdbapi.com/" target="_blank" rel="noreferrer">
+              OMDb
             </a>
           </span>
         </footer>
