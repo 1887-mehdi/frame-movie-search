@@ -5,7 +5,7 @@ A polished, responsive movie discovery app built with React, TypeScript, and Vit
 ## Features
 
 - Debounced movie search with suggestions, loading skeletons, empty states, and retryable errors
-- Film detail dialog with synopsis, score, runtime, genres, director, cast, and trailer
+- Film detail dialog with synopsis, release date, age rating, score comparisons, runtime, genres, director, writers, cast, countries, production, budget, box office, awards, and trailer
 - Responsive layouts, keyboard search shortcut (`/`), reduced-motion support, and accessible controls
 - Requests cancel when a newer search replaces them
 - TMDB-first search with OMDb fallback and title/year deduplication

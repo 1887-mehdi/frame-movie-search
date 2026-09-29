@@ -16,6 +16,27 @@ function formatRuntime(runtime: number | null) {
     .join(" ");
 }
 
+function formatDate(value: string) {
+  if (!value) return "";
+  const date = new Date(`${value.slice(0, 10)}T12:00:00`);
+  return Number.isNaN(date.getTime())
+    ? value
+    : new Intl.DateTimeFormat("en", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }).format(date);
+}
+
+function formatMoney(value: number | null | undefined) {
+  if (!value) return "";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
 export function MovieDetailsDialog({
   movie,
   onClose,
@@ -100,6 +121,35 @@ export function MovieDetailsDialog({
       .slice(0, 5)
       .map((person) => person.name)
       .join(", ");
+  const ratings: string[] = [];
+  if (details?.voteAverage) {
+    ratings.push(
+      `${movie.provider === "omdb" ? "IMDb" : "TMDB"} ${details.voteAverage.toFixed(1)}/10 (${details.voteCount.toLocaleString()} votes)`,
+    );
+  }
+  for (const rating of details?.externalRatings ?? []) {
+    if (!ratings.some((entry) => entry.startsWith(`${rating.source} `))) {
+      ratings.push(`${rating.source} ${rating.value}`);
+    }
+  }
+
+  const facts = (
+    [
+      ["Release date", formatDate(details?.releaseDate ?? movie.releaseDate)],
+      ["Runtime", details?.runtime ? formatRuntime(details.runtime) : ""],
+      ["Age rating", details?.rated ?? ""],
+      ["Director", director ?? ""],
+      ["Writers", details?.writers?.join(", ") ?? ""],
+      ["Cast", cast ?? ""],
+      ["Country", details?.countries?.join(", ") ?? ""],
+      ["Original language", details?.originalLanguage ?? ""],
+      ["Production", details?.productionCompanies?.join(", ") ?? ""],
+      ["Status", details?.status ?? ""],
+      ["Budget", formatMoney(details?.budget)],
+      ["Box office", details?.boxOffice || formatMoney(details?.revenue)],
+      ["Ratings", ratings.join(" · ")],
+    ] as Array<[string, string]>
+  ).filter(([, value]) => Boolean(value));
 
   return (
     <div
@@ -139,7 +189,7 @@ export function MovieDetailsDialog({
             ) : null}
             <div className="movie-dialog__intro">
               <p className="eyebrow">
-                FILM FILE · {movie.releaseDate.slice(0, 4) || "COMING SOON"}
+                FILM FILE · {movie.releaseDate.slice(0, 4) || "YEAR UNKNOWN"}
               </p>
               <h2 id="movie-dialog-title">{details?.title ?? movie.title}</h2>
               <div className="movie-dialog__badges">
@@ -186,28 +236,38 @@ export function MovieDetailsDialog({
             </p>
           ) : null}
           {details ? (
-            <div className="movie-dialog__facts">
-              <div>
-                <span>Director</span>
-                <strong>{director || "Not listed"}</strong>
+            <>
+              {details.tagline ? (
+                <p className="movie-dialog__tagline">“{details.tagline}”</p>
+              ) : null}
+              <div className="movie-dialog__facts">
+                {facts.map(([label, value]) => (
+                  <div key={label}>
+                    <span>{label}</span>
+                    <strong>{value}</strong>
+                  </div>
+                ))}
               </div>
-              <div>
-                <span>Cast</span>
-                <strong>{cast || "Not listed"}</strong>
-              </div>
-              <div>
-                <span>Original language</span>
-                <strong>
-                  {details.originalLanguage.toUpperCase() || "Not listed"}
-                </strong>
-              </div>
-              <div>
-                <span>
-                  {movie.provider === "omdb" ? "IMDb score" : "TMDB score"}
-                </span>
-                <strong>{details.voteCount.toLocaleString()} votes</strong>
-              </div>
-            </div>
+              {details.awards ? (
+                <div className="movie-dialog__awards">
+                  <span aria-hidden="true">✦</span>
+                  <p>
+                    <small>AWARDS &amp; RECOGNITION</small>
+                    <strong>{details.awards}</strong>
+                  </p>
+                </div>
+              ) : null}
+              {details.imdbId ? (
+                <a
+                  className="movie-dialog__imdb-link"
+                  href={`https://www.imdb.com/title/${encodeURIComponent(details.imdbId)}/`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  View on IMDb <span aria-hidden="true">↗</span>
+                </a>
+              ) : null}
+            </>
           ) : null}
           {trailerIsOpen && trailer ? (
             <div className="trailer-frame">

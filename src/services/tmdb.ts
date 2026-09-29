@@ -52,6 +52,17 @@ type TmdbMovie = {
   credits?: MovieDetails["credits"];
   videos?: MovieDetails["videos"];
   imdb_id?: string | null;
+  tagline?: string;
+  status?: string;
+  budget?: number;
+  revenue?: number;
+  production_companies?: Array<{ id: number; name: string }>;
+  production_countries?: Array<{ iso_3166_1: string; name: string }>;
+  spoken_languages?: Array<{
+    iso_639_1: string;
+    name: string;
+    english_name: string;
+  }>;
 };
 
 function normalizeMovie(movie: TmdbMovie): MovieSummary {
@@ -68,6 +79,17 @@ function normalizeMovie(movie: TmdbMovie): MovieSummary {
     voteCount: movie.vote_count,
     overview: movie.overview,
     genreIds: movie.genre_ids ?? [],
+    tagline: movie.tagline || "",
+    status: movie.status || "",
+    budget: movie.budget || null,
+    revenue: movie.revenue || null,
+    productionCompanies:
+      movie.production_companies?.map((company) => company.name) ?? [],
+    countries: movie.production_countries?.map((country) => country.name) ?? [],
+    originalLanguage:
+      movie.spoken_languages?.find(
+        (language) => language.iso_639_1 === movie.original_language,
+      )?.english_name ?? "",
   };
 }
 
@@ -137,7 +159,12 @@ export async function getMovieDetails(
   const details: MovieDetails = {
     ...mergeSummaries(normalizeMovie(movie), summary),
     runtime: movie.runtime ?? null,
-    originalLanguage: movie.original_language ?? "",
+    originalLanguage:
+      movie.spoken_languages?.find(
+        (language) => language.iso_639_1 === movie.original_language,
+      )?.english_name ??
+      movie.original_language ??
+      "",
     genres: movie.genres ?? [],
     credits: movie.credits ?? { crew: [], cast: [] },
     videos: movie.videos ?? { results: [] },
@@ -210,6 +237,23 @@ function mergeSummaries(
       ? primary.castNames
       : fallback.castNames,
     imdbRating: primary.imdbRating ?? fallback.imdbRating,
+    externalRatings: primary.externalRatings?.length
+      ? primary.externalRatings
+      : fallback.externalRatings,
+    rated: primary.rated || fallback.rated,
+    awards: primary.awards || fallback.awards,
+    boxOffice: primary.boxOffice || fallback.boxOffice,
+    writers: primary.writers?.length ? primary.writers : fallback.writers,
+    countries: primary.countries?.length
+      ? primary.countries
+      : fallback.countries,
+    productionCompanies: primary.productionCompanies?.length
+      ? primary.productionCompanies
+      : fallback.productionCompanies,
+    tagline: primary.tagline || fallback.tagline,
+    status: primary.status || fallback.status,
+    budget: primary.budget ?? fallback.budget,
+    revenue: primary.revenue ?? fallback.revenue,
   };
 }
 

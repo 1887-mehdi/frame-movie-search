@@ -23,6 +23,12 @@ type OmdbMovie = {
   Language?: string;
   Director?: string;
   Actors?: string;
+  Writer?: string;
+  Country?: string;
+  Rated?: string;
+  Awards?: string;
+  BoxOffice?: string;
+  Ratings?: Array<{ Source: string; Value: string }>;
   Response?: string;
   Error?: string;
 };
@@ -51,7 +57,10 @@ async function request<T>(
 }
 
 function normalizeOmdb(movie: OmdbMovie): MovieSummary {
-  const year = movie.Year?.match(/\d{4}/)?.[0] ?? "";
+  const year =
+    normalizeReleasedDate(movie.Released) ||
+    movie.Year?.match(/\d{4}/)?.[0] ||
+    "";
   const rating = Number(movie.imdbRating);
   const posterPath =
     movie.Poster && movie.Poster !== "N/A" ? movie.Poster : null;
@@ -85,7 +94,26 @@ function normalizeOmdb(movie: OmdbMovie): MovieSummary {
     director: movie.Director && movie.Director !== "N/A" ? movie.Director : "",
     castNames: actors,
     imdbRating: Number.isFinite(rating) ? rating.toFixed(1) : null,
+    externalRatings:
+      movie.Ratings?.map(({ Source, Value }) => ({
+        source: Source,
+        value: Value,
+      })) ?? [],
+    rated: movie.Rated && movie.Rated !== "N/A" ? movie.Rated : "",
+    awards: movie.Awards && movie.Awards !== "N/A" ? movie.Awards : "",
+    boxOffice:
+      movie.BoxOffice && movie.BoxOffice !== "N/A" ? movie.BoxOffice : "",
+    writers:
+      movie.Writer && movie.Writer !== "N/A" ? movie.Writer.split(", ") : [],
+    countries:
+      movie.Country && movie.Country !== "N/A" ? movie.Country.split(", ") : [],
   };
+}
+
+function normalizeReleasedDate(released?: string) {
+  if (!released || released === "N/A") return "";
+  const date = new Date(released);
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 10);
 }
 
 function parseRuntime(runtime?: string) {
@@ -136,6 +164,16 @@ export async function getOmdbMovieDetails(
     director: summary.director || normalized.director || "",
     castNames: summary.castNames?.length ? summary.castNames : names,
     imdbRating: normalized.imdbRating,
+    externalRatings: normalized.externalRatings,
+    rated: normalized.rated,
+    awards: normalized.awards,
+    boxOffice: normalized.boxOffice,
+    writers: summary.writers?.length
+      ? summary.writers
+      : (normalized.writers ?? []),
+    countries: summary.countries?.length
+      ? summary.countries
+      : (normalized.countries ?? []),
     credits: {
       crew: normalized.director
         ? [{ id: 0, name: normalized.director, job: "Director" }]

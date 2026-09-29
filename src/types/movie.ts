@@ -17,6 +17,17 @@ export type MovieSummary = {
   director?: string;
   castNames?: string[];
   imdbRating?: string | null;
+  externalRatings?: Array<{ source: string; value: string }>;
+  rated?: string;
+  awards?: string;
+  boxOffice?: string;
+  writers?: string[];
+  countries?: string[];
+  productionCompanies?: string[];
+  tagline?: string;
+  status?: string;
+  budget?: number | null;
+  revenue?: number | null;
 };
 
 export type MovieDetails = MovieSummary & {

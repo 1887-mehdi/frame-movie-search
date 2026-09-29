@@ -427,6 +427,15 @@ kbd {
   color: #a1a2a2;
   font: 10px var(--font-mono);
 }
+.movie-card__overview {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #858889;
+  font-size: 11px;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
 .movie-card__rating {
   color: var(--color-accent);
 }
@@ -623,8 +632,8 @@ kbd {
 }
 .movie-dialog__facts {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 32px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 24px;
 }
 .movie-dialog__facts div {
   display: grid;
@@ -643,6 +652,53 @@ kbd {
   font-size: 13px;
   font-weight: 500;
   line-height: 1.5;
+}
+.movie-dialog__tagline {
+  margin: 0 0 4px;
+  color: var(--color-accent);
+  font: italic 15px/1.5 var(--font-display);
+}
+.movie-dialog__awards {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 20px;
+  padding: 18px 20px;
+  border: 1px solid rgb(215 226 160 / 23%);
+  background: rgb(215 226 160 / 5%);
+}
+.movie-dialog__awards > span {
+  color: var(--color-accent);
+  font-size: 21px;
+}
+.movie-dialog__awards p {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+}
+.movie-dialog__awards small {
+  color: #999c96;
+  font: 9px var(--font-mono);
+  letter-spacing: 0.12em;
+}
+.movie-dialog__awards strong {
+  color: #ecebe7;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.movie-dialog__imdb-link {
+  display: inline-flex;
+  gap: 8px;
+  margin-top: 20px;
+  color: var(--color-accent);
+  font: 10px var(--font-mono);
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.movie-dialog__imdb-link:hover {
+  text-decoration: underline;
 }
 .details-loading {
   color: var(--color-muted);
@@ -723,6 +779,9 @@ kbd {
   .movie-dialog__body {
     padding-right: 30px;
     padding-left: 30px;
+  }
+  .movie-dialog__facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (width <= 600px) {

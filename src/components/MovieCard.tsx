@@ -47,6 +47,9 @@ export function MovieCard({ movie, onSelect }: MovieCardProps) {
             {movie.voteAverage ? movie.voteAverage.toFixed(1) : "—"}
           </span>
         </span>
+        {movie.overview ? (
+          <span className="movie-card__overview">{movie.overview}</span>
+        ) : null}
       </span>
     </button>
   );
